@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#Dominic Triwiang
+
 export PATH=/mnt/e/VirtualBox:$PATH
 vbmg () { ./VBoxManage.exe "$@"; }
 
