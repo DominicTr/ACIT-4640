@@ -5,8 +5,8 @@ VM_NAME="VM_ACIT4640"
 PXE_VM="PXE_4640"
 
 vbmg () { VBoxManage.exe "$@"; }
-#DON'T FORGET TO CHANGE THIS LATER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-export PATH=/mnt/e/VirtualBox:$PATH
+#/mnt/e/VirtualBox:$PATH
+export PATH=/mnt/c/Program\ Files/Oracle/VirtualBox:$PATH
 
 
 clean_all () {

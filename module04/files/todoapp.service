@@ -1,6 +1,8 @@
 [Unit]
 Description=Todo app, ACIT4640
 After=network.target
+StartLimitBurst=10
+StartLimitInterval=10
 
 [Service]
 Environment=NODE_PORT=8080
@@ -9,6 +11,7 @@ Type=simple
 User=todo-app
 ExecStart=/usr/bin/node /home/todo-app/app/server.js
 Restart=always
+
 
 [Install]
 WantedBy=multi-user.target
