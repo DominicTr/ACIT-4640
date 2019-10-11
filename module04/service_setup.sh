@@ -61,7 +61,7 @@ create_vm () {
 }
 create_pxe() {
 	echo "PXE server"
-	vbmg startvm $PXE_VM
+	vbmg startvm "$PXE_VM"
 
 	while /bin/true; do
         ssh -i acit_admin_id_rsa -p 50222 \
@@ -78,9 +78,18 @@ create_pxe() {
 
 transfer_files(){
 	echo "Transfering files"
-	ssh -i acit_admin_id_rsa -P 50222 sudo chown admin /var/www/lighttpd
+
+	#If i don't ssh like this it will says ssh: connect to host 50222 port 22: Network unreachable
+	ssh -i acit_admin_id_rsa -p 50222 \
+            -o ConnectTimeout=2 -o StrictHostKeyChecking=no \
+            -q admin@localhost sudo chown admin /var/www/lighttpd
 	scp -i acit_admin_id_rsa -P 50222 -r files/ admin@localhost:/var/www/lighttpd
-	ssh -y acit_admin_id_rsa -P 50222 admin@localhost sudo chown lighttpd /var/www/lighttpd
+	ssh -i acit_admin_id_rsa -p 50222 \
+            -o ConnectTimeout=2 -o StrictHostKeyChecking=no \
+            -q admin@localhost "sudo mv /var/www/lighttpd/files/ks.cfg /var/www/lighttpd/ ; \
+			sudo chown lighttpd /var/www/lighttpd ; \
+			sudo chmod 755 /var/www/lighttpd/ks.cfg; \
+			"
 }
 
 clean_all
@@ -88,3 +97,5 @@ create_network
 create_vm
 create_pxe
 transfer_files
+
+vbmg startvm "$VM_NAME"
