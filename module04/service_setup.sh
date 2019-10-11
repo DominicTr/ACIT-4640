@@ -5,18 +5,21 @@ VM_NAME="VM_ACIT4640"
 PXE_VM="PXE_4640"
 
 vbmg () { VBoxManage.exe "$@"; }
+#DON'T FORGET TO CHANGE THIS LATER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 export PATH=/mnt/e/VirtualBox:$PATH
 
 
 clean_all () {
+	echo "Deleting old VM"
 	vbmg natnetwork remove --netname "$NET_NAME"
 	vbmg unregistervm "$VM_NAME" --delete
 }
 
-#DON'T FORGET TO CHANGE THIS LATER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
 
 create_network () {
+	echo "Creating nat_net"
 	vbmg natnetwork add --netname "$NET_NAME" \
 		--network 192.168.250.0/24 \
 		--dhcp off \
@@ -28,10 +31,12 @@ create_network () {
 }
 
 create_vm () {
+	echo "Creating VM"
 	vbmg createvm --name "$VM_NAME" --ostype "RedHat_64" --register
-	vbmg modifyvm "$VM_NAME" --memory 1024 --nic1 natnetwork \
+	vbmg modifyvm "$VM_NAME" --memory 2600 --nic1 natnetwork \
 		--cableconnected1 on \
 		--nat-network1 "$NET_NAME" \
+		--boot1 disk --boot2 net --boot3 none --boot4 none \
 		--audio none
 
 	SED_PROGRAM="/^Config file:/ { s/^.*:\s\+\(\S\+\)/\1/; s|\\\\|/|gp }"
@@ -55,9 +60,8 @@ create_vm () {
 		--port 1 --device 0
 }
 create_pxe() {
-	vbmg modifyvm $PXE_VM --nic1 natnetwork --nat-network1 $NET_NAME --cableconnected1 on
+	echo "PXE server"
 	vbmg startvm $PXE_VM
-
 
 	while /bin/true; do
         ssh -i acit_admin_id_rsa -p 50222 \
@@ -72,8 +76,15 @@ create_pxe() {
 	done
 }
 
+transfer_files(){
+	echo "Transfering files"
+	ssh -i acit_admin_id_rsa -P 50222 sudo chown admin /var/www/lighttpd
+	scp -i acit_admin_id_rsa -P 50222 -r files/ admin@localhost:/var/www/lighttpd
+	ssh -y acit_admin_id_rsa -P 50222 admin@localhost sudo chown lighttpd /var/www/lighttpd
+}
 
 clean_all
 create_network
 create_vm
 create_pxe
+transfer_files
