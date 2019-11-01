@@ -5,8 +5,8 @@
         "root_passwd": "P@ssw0rd",
         "admin_user": "admin",
         "initial_admin_passwd": "temporary",
-        "authorized_keys": "./files/admin_id_rsa.pub",
-        "iso_url": "./isos/CentOS-7-x86_64-Minimal-1810.iso",
+        "authorized_keys": "./files/authorized_keys.pub",
+        "iso_url": "./isos/CentOS-7-x86_64-Minimal-1908.iso",
         "iso_checksum_url": "./isos/shasum.txt",
         "iso_checksum_type": "sha256",
         "http_directory": "./files/http",
@@ -52,9 +52,8 @@
             "inline": [
                 "echo \"{{ user `admin_passwd` }}\" | sudo passwd --stdin {{ user `admin_user` }}",
                 "echo \"{{ user `root_passwd` }}\" | sudo passwd --stdin root",
-                "mkdir /hpme/{{ user 'admin_user' }}/.ssh/",
-                "chown admin:admin -R /home/{{ user 'admin_user' }}/.ssh"
-
+                "mkdir /home/{{ user `admin_user` }}/.ssh/",
+                "chown {{ user `admin_user` }}:{{ user `admin_user` }} -R /home/{{ user `admin_user` }}/.ssh/"
             ]
         },
         {
