@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+Vagrant.configure("2") do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://vagrantcloud.com/search.
+  config.vm.box = "ansible_4640"
+  config.ssh.username = "admin"
+  config.ssh.private_key_path = "./files/admin_id_rsa"
+
+  config.vm.define "todoapp" do |todoapp|
+    todoapp.vm.hostname = "todoapp.bcit.local"
+    todoapp.vm.network "forwarded_port", guest: 80, host: 50080
+    todoapp.vm.network "forwarded_port", guest: 22, host: 50022
+    todoapp.vm.synced_folder ".", "/vagrant", disabled: true
+    todoapp.vm.provision :ansible do |ansible|
+      ansible.playbook = "ansible/todoapp.yaml"
+      ansible.inventory_path = "ansible/my_hosts"
+    end
+    todoapp.vm.provider "virtualbox" do |vb|
+      vb.name = "ANSIBLE_4640"
+      vb.linked_clone = true
+    end
+  end
+end
