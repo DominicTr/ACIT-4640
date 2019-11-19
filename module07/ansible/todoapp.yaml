@@ -14,11 +14,6 @@
       package:
         name: mongodb-server
         state: installed
-    - name: Install NPM
-      become: yes
-      package:
-        name: npm
-        state: installed
     - name: Install Nodejs
       become: yes
       package:
@@ -29,17 +24,15 @@
       package:
         name: git
         state: installed
-
+    - name: Disable SELinux
+      become: yes
+      selinux:
+        state: disabled
     - name: Copy nginx.conf file
       become: yes
       copy:
         src: ../files/nginx.conf
         dest: /etc/nginx/nginx.conf
-
-    - name: Disable SELinux
-      become: yes
-      selinux:
-        state: disabled
     - name: Create todoapp admin_user_name
       become: yes
       user:
@@ -48,12 +41,17 @@
     - name: Change folder permission
       become: yes
       file:
-        path: '/home/{{user_name}}'
+        path: '/home/{{user_name}}/app'
         state: directory
         recurse: yes
         owner: todoapp
         group: todoapp
-        mode: '0777'
+        mode: '0755'
+    - name: Change folder permission
+      become: yes
+      file:
+        path: '/home/{{user_name}}'
+        mode: 'a+rx'
     - name: Git clone
       become: yes
       git:
@@ -68,7 +66,7 @@
       copy:
         src: ../files/database.js
         dest: /home/{{user_name}}/app/config/database.js  
-    - name: Open http firewall
+    - name: Port http
       become: yes
       firewalld:
         service: http
@@ -76,6 +74,23 @@
         immediate: yes
         permanent: yes
         state: enabled
+    - name: Port https
+      become: yes
+      firewalld:
+        service: https
+        zone: public
+        immediate: yes
+        permanent: yes
+        state: enabled
+    - name: Port ssh
+      become: yes
+      firewalld:
+        service: ssh
+        zone: public
+        immediate: yes
+        permanent: yes
+        state: enabled
+
     - name: Copy todoapp.service file
       become: yes
       copy:
@@ -94,6 +109,10 @@
         name: nginx
         enabled: yes
         state: started
+    - name: reload daemons
+      become: yes
+      systemd:
+        daemon_reload: yes
     - name: Enables and start todoapp
       become: yes
       service:

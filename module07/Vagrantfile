@@ -9,7 +9,7 @@ Vagrant.configure("2") do |config|
   # boxes at https://vagrantcloud.com/search.
   config.vm.box = "ansible_4640"
   config.ssh.username = "admin"
-  config.ssh.private_key_path = "./files/admin_id_rsa"
+  config.ssh.private_key_path = "./files/acit_admin_id_rsa"
 
   config.vm.define "todoapp" do |todoapp|
     todoapp.vm.hostname = "todoapp.bcit.local"
@@ -18,7 +18,7 @@ Vagrant.configure("2") do |config|
     todoapp.vm.synced_folder ".", "/vagrant", disabled: true
     todoapp.vm.provision :ansible do |ansible|
       ansible.playbook = "ansible/todoapp.yaml"
-      ansible.inventory_path = "ansible/my_hosts"
+      ansible.inventory_path = "ansible/hosts"
     end
     todoapp.vm.provider "virtualbox" do |vb|
       vb.name = "ANSIBLE_4640"
