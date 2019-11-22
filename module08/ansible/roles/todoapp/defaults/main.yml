@@ -1,0 +1,4 @@
+---
+user: todoapp
+port: 8080
+gitrepo: https://github.com/timoguic/ACIT4640-todo-app.git

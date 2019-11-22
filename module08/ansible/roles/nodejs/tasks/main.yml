@@ -1,0 +1,6 @@
+---
+- name: install nodejs
+  become: yes
+  package:
+    name: nodejs
+    state: latest

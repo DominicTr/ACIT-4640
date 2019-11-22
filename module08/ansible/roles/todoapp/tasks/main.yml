@@ -1,0 +1,62 @@
+---
+- name: create todoapp user
+  become: yes
+  user:
+    name: "{{ user }}"
+    create_home: yes
+    password: "P@ssw0rd"
+- name: install Git
+  become: yes
+  package:
+    name: git
+    state: latest
+- name: Creates app directory
+  become: yes
+  file:
+      path: "/home/{{user}}/app"
+      state: directory
+- name: clone git repo
+  become: yes
+  git:
+    repo: "{{ gitrepo }}"
+    dest: "/home/{{user}}/app"
+- name: npm install
+  become: yes
+  npm:
+    path: "/home/{{user}}/app"
+- name: Change folder permission
+  become: yes
+  file:
+    path: '/home/{{user}}'
+    mode: 'a+rx'
+- name: Change folder owner
+  become: yes
+  file:
+    path: "/home/{{user}}"
+    state: directory
+    recurse: yes
+    owner: "{{ user }}"
+    group: "{{ user}}"
+    mode: "0755"
+- name: copy database.js
+  become: yes
+  template:
+    src: database.j2
+    dest: "/home/{{user}}/app/config/database.js"
+
+- name: Copy todoapp.service
+  become: yes
+  template:
+    src: todoapp_service.j2
+    dest: /lib/systemd/system/todoapp.service 
+
+- name: reload daemons
+  become: yes
+  systemd:
+    daemon_reload: yes
+- name: Enables and start todoapp
+  become: yes
+  service:
+    name: "{{ user }}"
+    enabled: yes
+    state: started

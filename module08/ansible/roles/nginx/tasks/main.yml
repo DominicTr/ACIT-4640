@@ -1,0 +1,44 @@
+---
+- name: install nginx
+  become: yes
+  package:
+    name: nginx
+    state: latest
+
+- name: transfer nginx_conf.j2
+  become: true
+  template:
+    src: nginx_conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: nginx
+    group: nginx
+- name: enable and start nginx
+  become: true
+  service:
+    name: nginx
+    enabled: yes
+    state: started
+- name: Port http
+  become: yes
+  firewalld:
+    service: http
+    zone: public
+    immediate: yes
+    permanent: yes
+    state: enabled
+- name: Port https
+  become: yes
+  firewalld:
+    service: https
+    zone: public
+    immediate: yes
+    permanent: yes
+    state: enabled
+- name: Port ssh
+  become: yes
+  firewalld:
+    service: ssh
+    zone: public
+    immediate: yes
+    permanent: yes
+    state: enabled

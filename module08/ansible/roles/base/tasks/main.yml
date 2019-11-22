@@ -1,0 +1,13 @@
+---
+- name: disable selinux
+  include_role:
+    name: no_selinux
+- name: configure nginx
+  include_role:
+    name: nginx
+- name: configure mongo_server
+  include_role:
+    name: mongo_server
+- name: configure nodejs
+  include_role:
+    name: nodejs
